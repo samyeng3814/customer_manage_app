@@ -5,11 +5,12 @@ class BuildCustomDropdown extends StatelessWidget {
   final String value;
   final List<String> items;
   final void Function(String?) onChanged;
+
   const BuildCustomDropdown({
     super.key,
-   required this.value,
+    required this.value,
     required this.items,
-   required this.onChanged,
+    required this.onChanged,
   });
 
   @override
@@ -22,8 +23,8 @@ class BuildCustomDropdown extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(16),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: DropdownButton<String>(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         value: value,
         isExpanded: true,
         underline: const SizedBox.shrink(),

@@ -12,8 +12,8 @@ class CustomerHiveModelAdaptor extends TypeAdapter<CustomerDetailHiveModel> {
     final name = reader.readString();
     final mobile = reader.readString();
     final email = reader.readString();
-    final city = reader.readString();
-    final state = reader.readString();
+    final city = reader.readStringList();
+    final state = reader.readStringList();
     final addressLine1 = reader.readString();
     final addressLine2 = reader.readString();
     final postalCode = reader.readString();
@@ -38,8 +38,8 @@ class CustomerHiveModelAdaptor extends TypeAdapter<CustomerDetailHiveModel> {
     writer.writeString(obj.name);
     writer.writeString(obj.mobile);
     writer.writeString(obj.email);
-    writer.writeString(obj.city);
-    writer.writeString(obj.state);
+    writer.writeStringList(obj.city);
+    writer.writeStringList(obj.state);
     writer.writeString(obj.addressLine1);
     writer.writeString(obj.addressLine2);
     writer.writeString(obj.postalCode);

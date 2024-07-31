@@ -1,6 +1,7 @@
 import 'package:customer_app/controller/add_customer_controller.dart';
-import 'package:customer_app/controller/get_customer_controller.dart';
+import 'package:customer_app/controller/fetch_customer_detail_controller.dart';
 import 'package:customer_app/model/customer_hive_model.dart';
+import 'package:customer_app/model/customer_request_response_model.dart';
 import 'package:customer_app/nav/navigation.dart';
 import 'package:customer_app/theme/app_colors.dart';
 import 'package:customer_app/theme/theme.dart';
@@ -47,15 +48,11 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
 
   ValueNotifier<bool> isLoading = ValueNotifier(false);
 
-  List<String> cityList = ['To-Do', 'In Progress', 'Completed'];
-  List<String> stateList = ['High', 'Medium', 'Low'];
-  String city = 'To-Do';
-  String state = 'High';
-
   @override
   void initState() {
     super.initState();
     if (widget.customerDetailHiveModel != null) {
+      var verifyController = context.read<FetchCustomerDatailController>();
       var customerModel = widget.customerDetailHiveModel;
       panNumberController =
           TextEditingController(text: customerModel!.panNumber);
@@ -69,6 +66,8 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
           TextEditingController(text: customerModel.addressLine2);
       postCodeController =
           TextEditingController(text: customerModel.postalCode);
+      verifyController.cityList = customerModel.city;
+      verifyController.stateList = customerModel.state;
     }
   }
 
@@ -108,76 +107,121 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
                   key: _formKey,
                   child: Column(
                     children: <Widget>[
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "PAN Number",
-                              style: FontTheme.subTitle.copyWith(
-                                color: AppColors.blackColor.withOpacity(0.8),
-                              ),
-                            ),
-                            AppSizedBox.h8,
-                            CustomTextField(
-                              controller: panNumberController,
-                              isBorderEnabled: true,
-                              focusNode: panNumberFocusNode,
-                              textCapitalization: TextCapitalization.characters,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.deny(' '),
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'[A-Z0-9]'),
+                      Consumer<FetchCustomerDatailController>(
+                        builder: (context, controller, _) {
+                          final panNumberResponseModel =
+                              controller.panNumberResponseModel;
+
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (panNumberResponseModel.isValid &&
+                                fullNameController.text !=
+                                    panNumberResponseModel.fullName) {
+                              fullNameController.text =
+                                  panNumberResponseModel.fullName;
+                            }
+                          });
+                          return Column(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "PAN Number",
+                                      style: FontTheme.subTitle.copyWith(
+                                        color: AppColors.blackColor
+                                            .withOpacity(0.8),
+                                      ),
+                                    ),
+                                    AppSizedBox.h8,
+                                    CustomTextField(
+                                      controller: panNumberController,
+                                      isBorderEnabled: true,
+                                      focusNode: panNumberFocusNode,
+                                      textCapitalization:
+                                          TextCapitalization.characters,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.deny(' '),
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[A-Z0-9]'),
+                                        ),
+                                      ],
+                                      maxLength: 10,
+                                      suffix: controller.isPanDetailLoading
+                                          ? SizedBox(
+                                              height: 24,
+                                              width: 24,
+                                              child: SpinKitFadingCircle(
+                                                color: AppColors.yellowColor,
+                                                size: 24,
+                                              ),
+                                            )
+                                          : const SizedBox(),
+                                      onFieldSubmitted: (val) {
+                                        FocusScope.of(context)
+                                            .requestFocus(fullNameFocusNode);
+                                        var panNumberRequestModel =
+                                            PanNumberRequestModel(
+                                                panNumber: val);
+                                        context
+                                            .read<
+                                                FetchCustomerDatailController>()
+                                            .fetchPanDetail(
+                                                panNumberRequestModel)
+                                            .then((_) {
+                                          Utils.showStatusSnackBar(
+                                              controller.panVerifyErrorMsg,
+                                              context);
+                                        });
+                                      },
+                                      validator: (value) =>
+                                          TextFormFieldValidator
+                                              .validatePancard(value!),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                              maxLength: 10,
-                              onFieldSubmitted: (val) {
-                                FocusScope.of(context)
-                                    .requestFocus(fullNameFocusNode);
-                              },
-                              validator: (value) =>
-                                  TextFormFieldValidator.validatePancard(
-                                      value!),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Full Name",
-                              style: FontTheme.subTitle.copyWith(
-                                color: AppColors.blackColor.withOpacity(0.8),
                               ),
-                            ),
-                            AppSizedBox.h8,
-                            CustomTextField(
-                              controller: fullNameController,
-                              isBorderEnabled: true,
-                              focusNode: fullNameFocusNode,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'[A-Za-z ]'),
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Full Name",
+                                      style: FontTheme.subTitle.copyWith(
+                                        color: AppColors.blackColor
+                                            .withOpacity(0.8),
+                                      ),
+                                    ),
+                                    AppSizedBox.h8,
+                                    CustomTextField(
+                                      controller: fullNameController,
+                                      isBorderEnabled: true,
+                                      focusNode: fullNameFocusNode,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[A-Za-z ]'),
+                                        ),
+                                      ],
+                                      maxLength: 140,
+                                      onFieldSubmitted: (val) {
+                                        FocusScope.of(context)
+                                            .requestFocus(emailFocusNode);
+                                      },
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter Full Name';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ],
-                              maxLength: 140,
-                              onFieldSubmitted: (val) {
-                                FocusScope.of(context)
-                                    .requestFocus(emailFocusNode);
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter Full Name';
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 8),
@@ -317,97 +361,133 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
                           ],
                         ),
                       ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Post Code",
-                              style: FontTheme.subTitle.copyWith(
-                                color: AppColors.blackColor.withOpacity(0.8),
-                              ),
-                            ),
-                            AppSizedBox.h8,
-                            CustomTextField(
-                              controller: postCodeController,
-                              isBorderEnabled: true,
-                              focusNode: postCodeFocusNode,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]'),
+                      Consumer<FetchCustomerDatailController>(
+                        builder: (context, controller, _) {
+                          return Column(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Post Code",
+                                      style: FontTheme.subTitle.copyWith(
+                                        color: AppColors.blackColor
+                                            .withOpacity(0.8),
+                                      ),
+                                    ),
+                                    AppSizedBox.h8,
+                                    CustomTextField(
+                                      controller: postCodeController,
+                                      isBorderEnabled: true,
+                                      focusNode: postCodeFocusNode,
+                                      keyboardType: TextInputType.number,
+                                      suffix: controller.isPostCodeLoading
+                                          ? SizedBox(
+                                              height: 24,
+                                              width: 24,
+                                              child: SpinKitFadingCircle(
+                                                color: AppColors.yellowColor,
+                                                size: 24,
+                                              ),
+                                            )
+                                          : const SizedBox(),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[0-9]'),
+                                        ),
+                                      ],
+                                      maxLength: 6,
+                                      onFieldSubmitted: (value) {
+                                        var postCodeRequestModel =
+                                            PostCodeRequestModel(
+                                                postCode: value);
+                                        context
+                                            .read<
+                                                FetchCustomerDatailController>()
+                                            .fetchPostCodeDetail(
+                                                postCodeRequestModel)
+                                            .then((_) {
+                                          Utils.showStatusSnackBar(
+                                              controller.postCodeVerifyErrorMsg,
+                                              context);
+                                        });
+                                      },
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Enter Postcode";
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ],
-                              maxLength: 6,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Enter Postcode";
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              ),
+                              Row(
                                 children: [
-                                  Text(
-                                    "state",
-                                    style: FontTheme.subTitle.copyWith(
-                                      color:
-                                          AppColors.blackColor.withOpacity(0.8),
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "state",
+                                            style: FontTheme.subTitle.copyWith(
+                                              color: AppColors.blackColor
+                                                  .withOpacity(0.8),
+                                            ),
+                                          ),
+                                          AppSizedBox.h8,
+                                          BuildCustomDropdown(
+                                            value: controller.selectedState,
+                                            items: controller.stateList,
+                                            onChanged: (selectedState) {
+                                              controller
+                                                  .selectState(selectedState!);
+                                            },
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                  AppSizedBox.h8,
-                                  BuildCustomDropdown(
-                                    items: stateList,
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        state = newValue!;
-                                      });
-                                    },
-                                    value: state,
+                                  AppSizedBox.w12,
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "city",
+                                            style: FontTheme.subTitle.copyWith(
+                                              color: AppColors.blackColor
+                                                  .withOpacity(0.8),
+                                            ),
+                                          ),
+                                          AppSizedBox.h8,
+                                          BuildCustomDropdown(
+                                            value: controller.selectedCity,
+                                            items: controller.cityList,
+                                            onChanged: (selectedCity) {
+                                              controller
+                                                  .selectCity(selectedCity!);
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                          AppSizedBox.w12,
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "city",
-                                    style: FontTheme.subTitle.copyWith(
-                                      color:
-                                          AppColors.blackColor.withOpacity(0.8),
-                                    ),
-                                  ),
-                                  AppSizedBox.h8,
-                                  BuildCustomDropdown(
-                                    items: cityList,
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        city = newValue!;
-                                      });
-                                    },
-                                    value: city,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -434,9 +514,11 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
                           isLoading.value = true;
                           _formKey.currentState!.save();
                           final customerId = const Uuid().v4();
+                          var verifyController =
+                              context.read<FetchCustomerDatailController>();
                           if (widget.pageName == "Add") {
                             context
-                                .read<AddCustomerController>()
+                                .read<CustomerController>()
                                 .addCustomer(
                                   CustomerDetailHiveModel(
                                     id: customerId,
@@ -444,13 +526,12 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
                                     name: fullNameController.text,
                                     mobile: mobileNumberController.text,
                                     email: emailController.text,
-                                    city: city,
-                                    state: state,
+                                    city: verifyController.cityList,
+                                    state: verifyController.stateList,
                                     addressLine1: addressLine1Controller.text,
                                     addressLine2: addressLine2Controller.text,
                                     postalCode: postCodeController.text,
                                   ),
-                                  context.read<GetCustomerController>(),
                                 )
                                 .then((value) {
                               Future.delayed(const Duration(seconds: 2), () {
@@ -461,21 +542,20 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
                             });
                           } else if (widget.pageName == "Update") {
                             context
-                                .read<AddCustomerController>()
+                                .read<CustomerController>()
                                 .updateCustomer(
                                   CustomerDetailHiveModel(
-                                    id: customerId,
+                                    id: widget.customerDetailHiveModel!.id,
                                     panNumber: panNumberController.text,
                                     name: fullNameController.text,
                                     mobile: mobileNumberController.text,
                                     email: emailController.text,
-                                    city: city,
-                                    state: state,
+                                    city: verifyController.cityList,
+                                    state: verifyController.stateList,
                                     addressLine1: addressLine1Controller.text,
                                     addressLine2: addressLine2Controller.text,
                                     postalCode: postCodeController.text,
                                   ),
-                                  context.read<GetCustomerController>(),
                                 )
                                 .then((value) {
                               Future.delayed(const Duration(seconds: 2), () {

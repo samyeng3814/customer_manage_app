@@ -8,7 +8,7 @@ class PanNumberRequestModel {
 }
 
 class PostCodeRequestModel {
-  final int postCode;
+  final String postCode;
   PostCodeRequestModel({
     required this.postCode,
   });
@@ -20,22 +20,16 @@ class PostCodeRequestModel {
 }
 
 class PanNumberResposeModel {
-  final String status;
-  final int statusCode;
   final bool isValid;
   final String fullName;
 
   PanNumberResposeModel({
-    required this.status,
-    required this.statusCode,
     required this.isValid,
     required this.fullName,
   });
 
   factory PanNumberResposeModel.fromJson(Map<String, dynamic> json) {
     return PanNumberResposeModel(
-      status: json['status'],
-      statusCode: json['statusCode'],
       isValid: json['isValid'],
       fullName: json['fullName'],
     );
@@ -43,26 +37,21 @@ class PanNumberResposeModel {
 }
 
 class PostCodeResponseModel {
-  final String status;
-  final int statusCode;
-  final int postCode;
   final List<CityModel> city;
   final List<StateModel> state;
   PostCodeResponseModel({
-    required this.status,
-    required this.statusCode,
-    required this.postCode,
     required this.city,
     required this.state,
   });
 
   factory PostCodeResponseModel.fromJson(Map<String, dynamic> json) {
     return PostCodeResponseModel(
-      status: json['status'],
-      statusCode: json['statuCode'],
-      postCode: json['postcode'],
-      city: json['city'],
-      state: json['state'],
+      city: (json['city'] as List<dynamic>)
+          .map((item) => CityModel.fromJson(item as Map<String, dynamic>))
+          .toList(),
+      state: (json['state'] as List<dynamic>)
+          .map((item) => StateModel.fromJson(item as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -79,7 +68,7 @@ class CityModel {
   factory CityModel.fromJson(Map<String, dynamic> json) {
     return CityModel(
       id: json['id'],
-      city: json['city'],
+      city: json['name'],
     );
   }
 }
@@ -96,7 +85,7 @@ class StateModel {
   factory StateModel.fromJson(Map<String, dynamic> json) {
     return StateModel(
       id: json['id'],
-      state: json['state'],
+      state: json['name'],
     );
   }
 }

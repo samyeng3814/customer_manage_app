@@ -1,5 +1,5 @@
 import 'package:customer_app/controller/add_customer_controller.dart';
-import 'package:customer_app/controller/get_customer_controller.dart';
+import 'package:customer_app/controller/fetch_customer_detail_controller.dart';
 import 'package:customer_app/hive/hive_adaptor.dart';
 import 'package:customer_app/model/customer_hive_model.dart';
 import 'package:customer_app/view/pages/home_page.dart';
@@ -23,10 +23,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => GetCustomerController(),
+          create: (_) => FetchCustomerDatailController(),
         ),
         ChangeNotifierProvider(
-          create: (_) => AddCustomerController(),
+          create: (_) => CustomerController(),
         ),
       ],
       child: const MaterialApp(

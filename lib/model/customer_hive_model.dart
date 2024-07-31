@@ -27,10 +27,10 @@ class CustomerDetailHiveModel extends HiveObject {
   final String postalCode;
 
   @HiveField(9)
-  final String state;
+  final List<String> state;
 
   @HiveField(10)
-  final String city;
+  final List<String> city;
 
   CustomerDetailHiveModel({
     required this.id,

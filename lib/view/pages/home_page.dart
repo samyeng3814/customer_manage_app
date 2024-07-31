@@ -1,5 +1,5 @@
 import 'package:customer_app/constant/constants.dart';
-import 'package:customer_app/controller/get_customer_controller.dart';
+import 'package:customer_app/controller/add_customer_controller.dart';
 import 'package:customer_app/nav/navigation.dart';
 import 'package:customer_app/theme/app_colors.dart';
 import 'package:customer_app/theme/theme.dart';
@@ -50,15 +50,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 AppSizedBox.h12,
                 SizedBox(
                   height: screenHeight - kToolbarHeight - 20 - 16,
-                  child: Consumer<GetCustomerController>(
-                      builder: (context, getCustomerController, _) {
+                  child: Consumer<CustomerController>(
+                      builder: (context, customerController, _) {
                     return ListView.builder(
-                      // physics: const NeverScrollableScrollPhysics(),
-                      itemCount: getCustomerController.getAllCustomers.length,
+                      itemCount: customerController.getAllCustomers.length,
                       itemBuilder: (context, index) {
                         return CustomerCardWidget(
                           customerDetailHiveModel:
-                              getCustomerController.getAllCustomers[index],
+                              customerController.getAllCustomers[index],
                         );
                       },
                     );

@@ -1,5 +1,4 @@
 import 'package:customer_app/controller/add_customer_controller.dart';
-import 'package:customer_app/controller/get_customer_controller.dart';
 import 'package:customer_app/model/customer_hive_model.dart';
 import 'package:customer_app/nav/navigation.dart';
 import 'package:customer_app/theme/app_colors.dart';
@@ -175,12 +174,10 @@ class CustomerCardWidget extends StatelessWidget {
                           ),
                           onPressed: () {
                             isLoading = true;
-                            final getCustomerController =
-                                context.read<GetCustomerController>();
                             context
-                                .read<AddCustomerController>()
+                                .read<CustomerController>()
                                 .deleteCustomer(
-                                    customerId, getCustomerController)
+                                    customerId)
                                 .then((val) {
                               Future.delayed(const Duration(seconds: 2), () {
                                 isLoading = false;
