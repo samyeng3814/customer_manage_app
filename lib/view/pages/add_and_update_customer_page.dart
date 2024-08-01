@@ -66,8 +66,7 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
           TextEditingController(text: customerModel.addressLine2);
       postCodeController =
           TextEditingController(text: customerModel.postalCode);
-      verifyController.cityList = customerModel.city;
-      verifyController.stateList = customerModel.state;
+      verifyController.addUpdateFields(customerModel);
     }
   }
 
@@ -531,11 +530,15 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
                                     addressLine1: addressLine1Controller.text,
                                     addressLine2: addressLine2Controller.text,
                                     postalCode: postCodeController.text,
+                                    selectedCity: verifyController.selectedCity,
+                                    selectedState:
+                                        verifyController.selectedState,
                                   ),
                                 )
                                 .then((value) {
                               Future.delayed(const Duration(seconds: 2), () {
                                 isLoading.value = false;
+                                verifyController.clearAddCustomerFields();
                                 Utils.showStatusSnackBar(value, context);
                                 popContext(context);
                               });
@@ -555,6 +558,9 @@ class AddAndUpdateCustomerPageState extends State<AddAndUpdateCustomerPage> {
                                     addressLine1: addressLine1Controller.text,
                                     addressLine2: addressLine2Controller.text,
                                     postalCode: postCodeController.text,
+                                    selectedCity: verifyController.selectedCity,
+                                    selectedState:
+                                        verifyController.selectedState,
                                   ),
                                 )
                                 .then((value) {

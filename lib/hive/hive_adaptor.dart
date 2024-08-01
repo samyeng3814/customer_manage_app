@@ -17,6 +17,8 @@ class CustomerHiveModelAdaptor extends TypeAdapter<CustomerDetailHiveModel> {
     final addressLine1 = reader.readString();
     final addressLine2 = reader.readString();
     final postalCode = reader.readString();
+    final selectedCity = reader.readString();
+    final selectedState = reader.readString();
     return CustomerDetailHiveModel(
       id: id,
       panNumber: panNumber,
@@ -28,6 +30,8 @@ class CustomerHiveModelAdaptor extends TypeAdapter<CustomerDetailHiveModel> {
       addressLine1: addressLine1,
       addressLine2: addressLine2,
       postalCode: postalCode,
+      selectedCity: selectedCity,
+      selectedState: selectedState,
     );
   }
 
@@ -43,5 +47,7 @@ class CustomerHiveModelAdaptor extends TypeAdapter<CustomerDetailHiveModel> {
     writer.writeString(obj.addressLine1);
     writer.writeString(obj.addressLine2);
     writer.writeString(obj.postalCode);
+    writer.writeString(obj.selectedCity);
+    writer.writeString(obj.selectedState);
   }
 }

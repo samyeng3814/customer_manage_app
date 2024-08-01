@@ -32,6 +32,12 @@ class CustomerDetailHiveModel extends HiveObject {
   @HiveField(10)
   final List<String> city;
 
+  @HiveField(11)
+  final String selectedCity;
+
+  @HiveField(12)
+  final String selectedState;
+
   CustomerDetailHiveModel({
     required this.id,
     required this.panNumber,
@@ -43,5 +49,7 @@ class CustomerDetailHiveModel extends HiveObject {
     required this.addressLine1,
     required this.addressLine2,
     required this.postalCode,
+    required this.selectedCity,
+    required this.selectedState,
   });
 }

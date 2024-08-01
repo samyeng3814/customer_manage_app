@@ -1,3 +1,4 @@
+import 'package:customer_app/model/customer_hive_model.dart';
 import 'package:customer_app/model/customer_request_response_model.dart';
 import 'package:customer_app/model/customer_verify_data_source.dart';
 import 'package:flutter/foundation.dart';
@@ -29,15 +30,28 @@ class FetchCustomerDatailController with ChangeNotifier {
   String get selectedCity => _selectedCity;
   String get selectedState => _selectedState;
 
-  set cityList(List<String> value) {
-    _cityList = value;
+  addUpdateFields(CustomerDetailHiveModel customerDetailHiveModel) {
+    _cityList = customerDetailHiveModel.city;
+    _stateList = customerDetailHiveModel.state;
+    _selectedCity = _cityList.first;
+    _selectedState = _stateList.first;
     Future.delayed(Duration.zero, () {
       notifyListeners();
     });
   }
 
-  set stateList(List<String> value) {
-    _stateList = value;
+  clearAddCustomerFields() {
+    _panNumberResposeModel =
+        PanNumberResposeModel(isValid: false, fullName: '');
+    _cityList = [];
+    _stateList = [];
+    _selectedCity = '';
+    _selectedState = '';
+    notifyListeners();
+  }
+
+  set selectedState(String value) {
+    _selectedState = value;
     Future.delayed(Duration.zero, () {
       notifyListeners();
     });

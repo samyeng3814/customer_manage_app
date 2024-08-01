@@ -114,7 +114,7 @@ class CustomerCardWidget extends StatelessWidget {
                     ),
                     AppSizedBox.w8,
                     Text(
-                      "${customerDetailHiveModel.city}, ${customerDetailHiveModel.state}",
+                      "${customerDetailHiveModel.selectedCity}, ${customerDetailHiveModel.selectedState}",
                       style: FontTheme.bodyText,
                     )
                   ],
@@ -176,8 +176,7 @@ class CustomerCardWidget extends StatelessWidget {
                             isLoading = true;
                             context
                                 .read<CustomerController>()
-                                .deleteCustomer(
-                                    customerId)
+                                .deleteCustomer(customerId)
                                 .then((val) {
                               Future.delayed(const Duration(seconds: 2), () {
                                 isLoading = false;
